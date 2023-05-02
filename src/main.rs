@@ -1,6 +1,6 @@
 use std::env::args;
 
-mod image;
+mod my_image;
 
 fn main() {
     let mut arguments: Vec<String> = args().collect();
