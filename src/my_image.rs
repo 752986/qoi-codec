@@ -21,7 +21,7 @@ impl Image {
             width,
             height,
             stride,
-            pixels: Vec::with_capacity((width * height) as usize),
+            pixels: Vec::with_capacity(width * height),
         };
     }
 
@@ -45,7 +45,7 @@ impl Image {
     
         let pixels = samples.as_slice().to_owned();
         let width = samples.layout.width as usize;
-        let stride = samples.layout.width_stride as usize;
+        let stride = samples.layout.width_stride;
     
         return Ok(Image::from(pixels, width, stride));
     }
@@ -58,21 +58,21 @@ impl Image {
     
         let pixels = samples.as_slice().to_owned();
         let width = samples.layout.width as usize;
-        let stride = samples.layout.width_stride as usize;
+        let stride = samples.layout.width_stride;
     
         return Ok(Image::from(pixels, width, stride));
     }
 
 	/// Gets a reference to the bytes of a pixel. The length of the slice will be equal to the stride of the image.
     pub fn get_pixel(&self, x: usize, y: usize) -> &[u8] {
-        let index = (((y * self.width) + x) * self.stride) as usize;
+        let index = ((y * self.width) + x) * self.stride;
 
         return &self.pixels[index..index + self.stride];
     }
 
 	/// Gets a mutable reference to the bytes of a pixel. The length of the slice will be equal to the stride of the image.
     pub fn get_pixel_mut(&mut self, x: usize, y: usize) -> &mut [u8] {
-        let index = (((y * self.width) + x) * self.stride) as usize;
+        let index = ((y * self.width) + x) * self.stride;
 
         return &mut self.pixels[index..index + self.stride];
     }

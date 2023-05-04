@@ -1,3 +1,6 @@
+#![allow(clippy::needless_return)]
+#![warn(clippy::implicit_return)]
+
 use std::{env::args};
 use my_image::Image;
 
