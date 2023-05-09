@@ -1,6 +1,16 @@
 #![allow(dead_code)]
 
-use std::io;
+use std::{
+    error::Error,
+    io::{self, Read},
+};
+
+pub struct ImageDecodeError {
+    position: usize,
+    message: String,
+}
+
+impl Error for ImageDecodeError {}
 
 /// Contains the data of an image.
 pub struct Image {
@@ -33,7 +43,7 @@ impl Image {
             width,
             height,
             stride,
-            pixels
+            pixels,
         };
     }
 
@@ -50,17 +60,23 @@ impl Image {
         return Ok(Image::from(pixels, width, stride));
     }
 
-    /// Read the qoi image at `filepath` into an `Image`. Returns `Err` if the file can't be opened for some reason.
-    pub fn read_qoi(filepath: &str) -> io::Result<Self> {
-        use image::io::Reader;
-        let image = Reader::open(filepath)?.decode().unwrap();
-        let samples = image.as_flat_samples_u8().unwrap();
-
-        let pixels = samples.as_slice().to_owned();
-        let width = samples.layout.width as usize;
-        let stride = samples.layout.width_stride;
+    fn decode_qoi(data: &[u8]) -> Result<Self, ImageDecodeError> {
+        // let pixels = 
+        // let width = 
+        // let stride = 
 
         return Ok(Image::from(pixels, width, stride));
+    }
+
+    /// Read the qoi image at `filepath` into an `Image`. Returns `Err` if the file can't be opened for some reason.
+    pub fn read_qoi(filepath: &str) -> io::Result<Self> {
+        use std::fs::File;
+        let file = File::open(filepath)?;
+
+        let data = Vec::new();
+        file.read_to_end(&mut data)?;
+
+        return Ok(Image::decode_qoi(&data));
     }
 
     pub fn write_png(&self, filepath: &str) -> bool {
