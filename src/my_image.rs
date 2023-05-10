@@ -2,15 +2,28 @@
 
 use std::{
     error::Error,
-    io::{self, Read},
+    io::{self, Read}, fmt::Display,
 };
 
+#[derive(Debug)]
 pub struct ImageDecodeError {
     position: usize,
     message: String,
 }
 
+impl Display for ImageDecodeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Error decoding image at byte {}: {}", self.position, self.message)
+    }
+}
+
 impl Error for ImageDecodeError {}
+
+// impl Into<io::Error> for ImageDecodeError {
+//     fn into(self) -> io::Error {
+//         io::Error::new(kind, error)
+//     }
+// }
 
 /// Contains the data of an image.
 pub struct Image {
@@ -60,23 +73,55 @@ impl Image {
         return Ok(Image::from(pixels, width, stride));
     }
 
-    fn decode_qoi(data: &[u8]) -> Result<Self, ImageDecodeError> {
-        // let pixels = 
-        // let width = 
-        // let stride = 
-
-        return Ok(Image::from(pixels, width, stride));
-    }
+    // fn decode_qoi(data: &[u8]) -> Result<Self, ImageDecodeError> {
+    //     if
+    //     // let pixels =
+    //     // let width =
+    //     // let stride =
+    //
+    //     return Ok(Image::from(pixels, width, stride));
+    // }
 
     /// Read the qoi image at `filepath` into an `Image`. Returns `Err` if the file can't be opened for some reason.
     pub fn read_qoi(filepath: &str) -> io::Result<Self> {
-        use std::fs::File;
-        let file = File::open(filepath)?;
+        struct Color {
+            r: u8,
+            g: u8,
+            b: u8,
+            a: u8
+        }
 
-        let data = Vec::new();
+        impl Color {
+            fn get_hash(&self) -> u8 {
+                return (self.r * 3 + self.g * 5 + self.b * 7 + self.a * 11) % 64;
+            }
+        }
+
+        use std::fs::File;
+        let mut file = File::open(filepath)?;
+
+        let mut data = Vec::new();
         file.read_to_end(&mut data)?;
 
-        return Ok(Image::decode_qoi(&data));
+        // check magic bytes "qoif"
+        if &data[0..4] != b"qoif" {
+            return Err(io::Error::new(io::ErrorKind::InvalidData, "Not a QOI image file"));
+        }
+
+        let width = u32::from_be_bytes(data[4..8].try_into().unwrap());
+        let height = u32::from_be_bytes(data[8..12].try_into().unwrap());
+        let n_channels = data[12];
+        if n_channels != 3 && n_channels != 4 {
+            return Err(io::Error::new(io::ErrorKind::InvalidData, "Invalid number of channels"));
+        }
+
+        let current_color = Color { r: 0, b: 0, g: 0, a: 0 };
+        let prev_colors: [Color; 64];
+
+        
+
+        // return Ok();
+        return todo!()
     }
 
     pub fn write_png(&self, filepath: &str) -> bool {
