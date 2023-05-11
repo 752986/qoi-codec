@@ -44,7 +44,7 @@ impl Image {
             width,
             height,
             stride,
-            pixels: Vec::with_capacity(width * height),
+            pixels: Vec::with_capacity(width * height * stride),
         };
     }
 
@@ -117,8 +117,36 @@ impl Image {
 
         let current_color = Color { r: 0, b: 0, g: 0, a: 0 };
         let prev_colors: [Color; 64];
+        let result = Image::new(width as usize, height as usize, n_channels as usize);
 
-        
+        let current_byte: usize = 14;
+        loop {
+            let this_color: Color = match data[current_byte] {
+                0b11111110 => { // RGB full value
+                    todo!()
+                }
+                0b11111111 => { // RGBA full value
+                    todo!()
+                }
+                _ => match data[current_byte] >> 6 {
+                    0b00 => { // index lookup
+                        todo!()
+                    }
+                    0b01 => { // RGB diff
+                        todo!()
+                    }
+                    0b10 => { // luma diff
+                        todo!()
+                    }
+                    0b11 => { // run
+                        todo!()
+                    }
+                    _ => {
+                        panic!("This should never happen") // safe because of the bitshift
+                    }
+                }
+            };
+        }
 
         // return Ok();
         return todo!()
