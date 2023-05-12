@@ -115,7 +115,7 @@ impl Image {
             return Err(io::Error::new(io::ErrorKind::InvalidData, "Invalid number of channels"));
         }
 
-        let current_color = Color { r: 0, b: 0, g: 0, a: 0 };
+        let prev_color = Color { r: 0, b: 0, g: 0, a: 255 };
         let prev_colors: [Color; 64];
         let result = Image::new(width as usize, height as usize, n_channels as usize);
 
@@ -123,12 +123,22 @@ impl Image {
         loop {
             let this_color: Color = match data[current_byte] {
                 0b11111110 => { // RGB full value
-                    todo!()
+                    Color {
+                        r: data[current_byte + 1],
+                        b: data[current_byte + 2],
+                        g: data[current_byte + 3],
+                        a: prev_color.a
+                    }
                 }
                 0b11111111 => { // RGBA full value
-                    todo!()
+                    Color {
+                        r: data[current_byte + 1],
+                        b: data[current_byte + 2],
+                        g: data[current_byte + 3],
+                        a: data[current_byte + 4]
+                    }
                 }
-                _ => match data[current_byte] >> 6 {
+                byte => match byte >> 6 {
                     0b00 => { // index lookup
                         todo!()
                     }
