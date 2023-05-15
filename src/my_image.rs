@@ -84,6 +84,7 @@ impl Image {
 
     /// Read the qoi image at `filepath` into an `Image`. Returns `Err` if the file can't be opened for some reason.
     pub fn read_qoi(filepath: &str) -> io::Result<Self> {
+        #[derive(Clone, Copy)]
         struct Color {
             r: u8,
             g: u8,
@@ -115,8 +116,8 @@ impl Image {
             return Err(io::Error::new(io::ErrorKind::InvalidData, "Invalid number of channels"));
         }
 
-        let prev_color = Color { r: 0, b: 0, g: 0, a: 255 };
-        let prev_colors: [Color; 64];
+        let prev_color = Color { r: 0, b: 0, g: 0, a: 255 }; // TODO: should this be the same as `current_color`?
+        let prev_colors = [Color { r: 0, b: 0, g: 0, a: 255 }; 64];
         let result = Image::new(width as usize, height as usize, n_channels as usize);
 
         let current_byte: usize = 14;
@@ -140,7 +141,7 @@ impl Image {
                 }
                 byte => match byte >> 6 {
                     0b00 => { // index lookup
-                        todo!()
+                        prev_colors[(byte & 0b00111111) as usize]
                     }
                     0b01 => { // RGB diff
                         todo!()
