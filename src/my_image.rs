@@ -116,13 +116,13 @@ impl Image {
             return Err(io::Error::new(io::ErrorKind::InvalidData, "Invalid number of channels"));
         }
 
-        let prev_color = Color { r: 0, b: 0, g: 0, a: 255 }; // TODO: should this be the same as `current_color`?
+        let prev_color = Color { r: 0, b: 0, g: 0, a: 255 };
         let prev_colors = [Color { r: 0, b: 0, g: 0, a: 255 }; 64];
         let result = Image::new(width as usize, height as usize, n_channels as usize);
 
         let current_byte: usize = 14;
         loop {
-            let this_color: Color = match data[current_byte] {
+            let computed_color: Color = match data[current_byte] {
                 0b11111110 => { // RGB full value
                     Color {
                         r: data[current_byte + 1],
@@ -144,12 +144,31 @@ impl Image {
                         prev_colors[(byte & 0b00111111) as usize]
                     }
                     0b01 => { // RGB diff
-                        todo!()
+                        let dr = ((byte >> 4) & 0b11) - 2;
+                        let dg = ((byte >> 2) & 0b11) - 2;
+                        let db = ((byte >> 0) & 0b11) - 2;
+                        Color {
+                            r: prev_color.r + dr,
+                            g: prev_color.g + dg,
+                            b: prev_color.b + db,
+                            a: prev_color.a
+                        }
                     }
                     0b10 => { // luma diff
-                        todo!()
+                        let dg = byte & 0b00111111;
+                        let dr = u8::overflowing_add(data[current_byte + 1] >> 4, dg).0;
+                        let db = u8::overflowing_add(data[current_byte + 1] & 0b00001111, dg).0;
+                        Color {
+                            r: prev_color.r + dr,
+                            g: prev_color.g + dg,
+                            b: prev_color.b + db,
+                            a: prev_color.a
+                        }
                     }
                     0b11 => { // run
+                        // for i in 0..byte & 0b00111111 {
+                            
+                        // }
                         todo!()
                     }
                     _ => {
